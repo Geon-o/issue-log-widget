@@ -1,0 +1,26 @@
+name: Supabase Keep-Alive Ping
+
+on:
+  schedule:
+    # 매주 월요일, 목요일 03:00 UTC — Supabase 무료 티어 7일 비활성 자동 일시정지 방지
+    - cron: '0 3 * * 1,4'
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase issues table
+        env:
+          SUPABASE_URL: https://gxwesildrqlctoafbfpf.supabase.co
+          SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4d2VzaWxkcnFsY3RvYWZiZnBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxNzkyNzIsImV4cCI6MjA5OTc1NTI3Mn0.kFqaGG-J6R7KoodeXcWdsQE_-rrDRO6aQUomJRbU81I
+        run: |
+          status=$(curl -s -o /dev/null -w "%{http_code}" \
+            "$SUPABASE_URL/rest/v1/issues?select=id&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY")
+          echo "Supabase response status: $status"
+          if [ "$status" -ne 200 ]; then
+            echo "Ping failed with status $status"
+            exit 1
+          fi
