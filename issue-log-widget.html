@@ -6,301 +6,283 @@
 <title>이슈 로그</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo+Black&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-deep: #0F1B2D;
-    --bg-panel: #16283F;
-    --bg-panel-raised: #1C3350;
-    --grid-line: #24405C;
-    --grid-line-faint: #1A2E45;
-    --ink: #E8EDF2;
-    --ink-dim: #8FA3B8;
-    --ink-faint: #5A7089;
-    --cyan: #5FB4D9;
-    --cyan-dim: #3D7A96;
-    --resolved: #6FCF97;
-    --pending: #F2C94C;
-    --cat-db: #5FB4D9;
-    --cat-java: #E08E45;
-    --cat-algo: #A78BE0;
-    --cat-etc: #8A9BAE;
+    --paper: #FAFAFA;
+    --ink: #0A0A0A;
+    --ink-soft: #4A4A4A;
+    --ink-faint: #B0B0B0;
+    --line: #0A0A0A;
+    --signal: #FF3300;
+    --resolved: #00A651;
+    --pending: #FFB800;
+    --hold: #9C9C9C;
   }
 
   * { box-sizing: border-box; }
 
   body {
     margin: 0;
-    background: var(--bg-deep);
-    background-image:
-      repeating-linear-gradient(0deg, var(--grid-line-faint) 0, var(--grid-line-faint) 1px, transparent 1px, transparent 32px),
-      repeating-linear-gradient(90deg, var(--grid-line-faint) 0, var(--grid-line-faint) 1px, transparent 1px, transparent 32px);
+    background: var(--paper);
     color: var(--ink);
-    font-family: 'IBM Plex Sans KR', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
     min-height: 100vh;
-    padding: 28px 20px 60px;
   }
 
-  .wrap { max-width: 780px; margin: 0 auto; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 40px 24px 80px; }
 
-  /* ---- title block ---- */
-  .titleblock {
-    border: 1px solid var(--grid-line);
-    background: var(--bg-panel);
-    padding: 18px 20px;
+  /* ---- header ---- */
+  header {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
-    gap: 16px;
+    gap: 20px;
     flex-wrap: wrap;
-    position: relative;
+    border-bottom: 4px solid var(--line);
+    padding-bottom: 18px;
+    margin-bottom: 4px;
   }
-  .titleblock::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 6px; height: 100%;
-    background: var(--cyan);
-  }
-  .titleblock h1 {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 15px;
-    letter-spacing: 0.12em;
-    font-weight: 700;
-    color: var(--cyan);
-    margin: 0;
-    padding-left: 14px;
-  }
-  .titleblock .meta {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    color: var(--ink-dim);
-    padding-left: 14px;
-  }
-  .search-box {
-    flex: 1 1 220px;
-    display: flex;
-    align-items: center;
-    background: var(--bg-deep);
-    border: 1px solid var(--grid-line);
-    padding: 8px 12px;
-    gap: 8px;
-  }
-  .search-box svg { flex-shrink: 0; opacity: 0.5; }
-  .search-box input {
-    background: none;
-    border: none;
-    outline: none;
-    color: var(--ink);
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px;
-    width: 100%;
-  }
-  .search-box input::placeholder { color: var(--ink-faint); }
-
-  /* ---- filters ---- */
-  .filters {
-    margin-top: 10px;
-    border: 1px solid var(--grid-line);
-    border-top: none;
-    background: var(--bg-panel);
-    padding: 12px 20px;
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  .chip {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.02em;
-    padding: 5px 11px;
-    border: 1px solid var(--grid-line);
-    background: var(--bg-deep);
-    color: var(--ink-dim);
-    cursor: pointer;
-    user-select: none;
-    transition: border-color 0.15s, color 0.15s, background 0.15s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .chip .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-  .chip:hover { border-color: var(--cyan-dim); color: var(--ink); }
-  .chip.active { background: var(--cyan); border-color: var(--cyan); color: var(--bg-deep); font-weight: 600; }
-  .chip.active .dot { background: var(--bg-deep); }
-
-  /* ---- list ---- */
-  .list { margin-top: 10px; display: flex; flex-direction: column; gap: 10px; }
-
-  .card {
-    display: flex;
-    border: 1px solid var(--grid-line);
-    background: var(--bg-panel);
-    overflow: hidden;
-  }
-  .card .rail {
-    flex: 0 0 34px;
-    background: var(--bg-deep);
-    border-right: 1px solid var(--grid-line);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 12px 0;
-    position: relative;
-  }
-  .card .rail .tick {
-    width: 12px; height: 1px; background: var(--grid-line);
-    margin: 3px 0;
-  }
-  .card .rail .catbar {
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 4px;
-  }
-
-  .card .body { flex: 1; min-width: 0; }
-
-  .card .head {
-    padding: 14px 18px;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .card .head:hover { background: var(--bg-panel-raised); }
-
-  .row-top {
+  .brand {
     display: flex;
     align-items: baseline;
     gap: 10px;
+  }
+  .brand .mark {
+    width: 14px; height: 14px;
+    background: var(--signal);
+    display: inline-block;
+    border-radius: 50%;
+  }
+  h1 {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: clamp(28px, 6vw, 44px);
+    letter-spacing: -0.02em;
+    margin: 0;
+    line-height: 0.95;
+  }
+  .count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    color: var(--ink-soft);
+    text-align: right;
+  }
+  .count b { color: var(--signal); font-size: 15px; }
+
+  /* ---- controls ---- */
+  .controls {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--ink);
+    margin-bottom: 0;
+  }
+  .search-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 4px;
+    border-right: 1px solid var(--ink);
+  }
+  .search-wrap svg { flex-shrink: 0; }
+  .search-wrap input {
+    border: none;
+    outline: none;
+    background: none;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    width: 100%;
+    color: var(--ink);
+  }
+  .search-wrap input::placeholder { color: var(--ink-faint); }
+
+  .filters {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 0 10px 16px;
     flex-wrap: wrap;
   }
-  .no {
+  .chip {
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
-    color: var(--ink-faint);
-    letter-spacing: 0.05em;
+    letter-spacing: 0.03em;
+    padding: 7px 12px;
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid transparent;
+    white-space: nowrap;
   }
-  .title {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--ink);
-    flex: 1;
-    min-width: 160px;
+  .chip:hover { color: var(--ink); }
+  .chip.active {
+    background: var(--ink);
+    color: var(--paper);
   }
-  .status {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
-    padding: 2px 8px;
-    border: 1px solid currentColor;
-  }
-  .status.해결됨 { color: var(--resolved); }
-  .status.진행중 { color: var(--pending); }
-  .status.보류 { color: var(--ink-faint); }
 
-  .row-meta {
+  /* ---- list ---- */
+  .list { margin-top: 0; }
+
+  .entry {
+    position: relative;
+    border-bottom: 1px solid var(--ink);
+    padding: 28px 0;
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 4px;
+    cursor: pointer;
+  }
+  .entry:hover .num { color: var(--signal); }
+
+  .num {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 54px;
+    line-height: 0.85;
+    color: var(--ink-faint);
+    transition: color 0.15s ease;
+    user-select: none;
+  }
+
+  .entry-main { min-width: 0; }
+
+  .entry-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .entry-title {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+  }
+  .status-dot {
+    flex-shrink: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-top: 5px;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .status-dot::before {
+    content: '';
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--hold);
+  }
+  .status-dot.해결됨::before { background: var(--resolved); }
+  .status-dot.진행중::before { background: var(--pending); }
+
+  .entry-meta {
+    margin-top: 8px;
     display: flex;
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
-    color: var(--ink-faint);
+    color: var(--ink-soft);
   }
-  .cat-tag {
+  .cat-pill {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 2px 8px;
     font-weight: 600;
-    letter-spacing: 0.02em;
   }
-  .tags span { color: var(--cyan-dim); }
-  .summary {
-    font-size: 12.5px;
-    color: var(--ink-dim);
-    line-height: 1.5;
+  .tag { color: var(--ink-faint); }
+
+  .entry-summary {
+    margin-top: 10px;
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    max-width: 640px;
   }
 
-  /* ---- expanded ---- */
+  /* ---- detail ---- */
   .detail {
     display: none;
-    padding: 4px 18px 18px;
-    border-top: 1px dashed var(--grid-line);
-    margin: 0 18px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid var(--signal);
   }
-  .detail.open { display: block; }
-  .section { margin-top: 14px; }
+  .detail.open { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 32px; }
+  @media (max-width: 640px) {
+    .detail.open { grid-template-columns: 1fr; }
+    .entry { grid-template-columns: 60px 1fr; }
+    .num { font-size: 34px; }
+  }
+
   .section h3 {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    color: var(--cyan);
-    margin: 0 0 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--signal);
+    margin: 0 0 8px;
     text-transform: uppercase;
   }
   .section p {
     margin: 0;
-    font-size: 13px;
-    line-height: 1.7;
+    font-size: 13.5px;
+    line-height: 1.75;
     color: var(--ink);
     white-space: pre-wrap;
   }
   .section pre {
-    background: var(--bg-deep);
-    border: 1px solid var(--grid-line);
-    padding: 12px 14px;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 14px 16px;
     overflow-x: auto;
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
     line-height: 1.6;
-    color: var(--ink-dim);
-    margin: 8px 0 0;
+    margin: 10px 0 0;
   }
 
   .empty, .loading {
+    padding: 80px 0;
     text-align: center;
-    padding: 60px 20px;
-    color: var(--ink-faint);
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 13px;
-  }
-
-  @media (max-width: 480px) {
-    .titleblock { flex-direction: column; align-items: flex-start; }
-    .search-box { width: 100%; }
+    color: var(--ink-faint);
   }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="titleblock">
-    <div>
-      <h1>ISSUE LOG</h1>
-      <div class="meta" id="countMeta">· · ·</div>
+  <header>
+    <div class="brand">
+      <span class="mark"></span>
+      <h1>ISSUE<br>LOG</h1>
     </div>
-    <div class="search-box">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="searchInput" placeholder="제목, 태그, 요약 검색...">
-    </div>
-  </div>
+    <div class="count" id="countMeta">— / —</div>
+  </header>
 
-  <div class="filters" id="filterBar">
-    <div class="chip active" data-cat="all"><span class="dot" style="background:var(--cyan)"></span>전체</div>
+  <div class="controls">
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="검색">
+    </div>
+    <div class="filters" id="filterBar">
+      <div class="chip active" data-cat="all">전체</div>
+    </div>
   </div>
 
   <div class="list" id="list">
-    <div class="loading">불러오는 중...</div>
+    <div class="loading">LOADING…</div>
   </div>
 </div>
 
 <script>
 const SUPABASE_URL = 'https://gxwesildrqlctoafbfpf.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4d2VzaWxkcnFsY3RvYWZiZnBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxNzkyNzIsImV4cCI6MjA5OTc1NTI3Mn0.kFqaGG-J6R7KoodeXcWdsQE_-rrDRO6aQUomJRbU81I';
-
-const CAT_COLORS = {
-  'Database/SQL': 'var(--cat-db)',
-  'Java': 'var(--cat-java)',
-  '알고리즘/자료구조': 'var(--cat-algo)',
-  '기타': 'var(--cat-etc)'
-};
 
 let allIssues = [];
 let activeCat = 'all';
@@ -319,15 +301,15 @@ async function loadIssues() {
     buildFilterBar();
     render();
   } catch (err) {
-    document.getElementById('list').innerHTML = `<div class="empty">데이터를 불러오지 못했습니다.<br>${err.message}</div>`;
+    document.getElementById('list').innerHTML = `<div class="empty">데이터를 불러오지 못했습니다<br>${err.message}</div>`;
   }
 }
 
 function buildFilterBar() {
   const cats = [...new Set(allIssues.map(i => i.category).filter(Boolean))];
   const bar = document.getElementById('filterBar');
-  bar.innerHTML = `<div class="chip active" data-cat="all"><span class="dot" style="background:var(--cyan)"></span>전체</div>` +
-    cats.map(c => `<div class="chip" data-cat="${c}"><span class="dot" style="background:${CAT_COLORS[c] || 'var(--cat-etc)'}"></span>${c}</div>`).join('');
+  bar.innerHTML = `<div class="chip active" data-cat="all">전체</div>` +
+    cats.map(c => `<div class="chip" data-cat="${c}">${c}</div>`).join('');
 
   bar.querySelectorAll('.chip').forEach(chip => {
     chip.addEventListener('click', () => {
@@ -349,47 +331,37 @@ function render() {
   const filtered = allIssues.filter(issue => {
     if (activeCat !== 'all' && issue.category !== activeCat) return false;
     if (!term) return true;
-    const haystack = [
-      issue.title, issue.summary, issue.category,
-      ...(issue.tags || [])
-    ].join(' ').toLowerCase();
+    const haystack = [issue.title, issue.summary, issue.category, ...(issue.tags || [])].join(' ').toLowerCase();
     return haystack.includes(term);
   });
 
-  document.getElementById('countMeta').textContent = `TOTAL ${allIssues.length} · SHOWING ${filtered.length}`;
+  document.getElementById('countMeta').innerHTML = `<b>${filtered.length}</b> / ${allIssues.length}`;
 
   const list = document.getElementById('list');
   if (filtered.length === 0) {
-    list.innerHTML = `<div class="empty">일치하는 이슈가 없습니다.</div>`;
+    list.innerHTML = `<div class="empty">NO MATCHES</div>`;
     return;
   }
 
-  list.innerHTML = filtered.map((issue, idx) => {
-    const no = String(issue.id).padStart(3, '0');
-    const catColor = CAT_COLORS[issue.category] || 'var(--cat-etc)';
-    const tags = (issue.tags || []).map(t => `<span>#${escapeHtml(t)}</span>`).join(' ');
+  list.innerHTML = filtered.map((issue) => {
+    const no = String(issue.id).padStart(2, '0');
+    const tags = (issue.tags || []).map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join(' ');
     const statusClass = issue.status || '해결됨';
 
     return `
-    <div class="card">
-      <div class="rail">
-        <div class="catbar" style="background:${catColor}"></div>
-        ${Array.from({length: 5}).map(() => '<div class="tick"></div>').join('')}
-      </div>
-      <div class="body">
-        <div class="head" onclick="toggleDetail(${issue.id})">
-          <div class="row-top">
-            <span class="no">NO.${no}</span>
-            <span class="title">${escapeHtml(issue.title)}</span>
-            <span class="status ${statusClass}">${statusClass}</span>
-          </div>
-          <div class="row-meta">
-            <span class="cat-tag" style="color:${catColor}">${escapeHtml(issue.category || '')}</span>
-            <span class="tags">${tags}</span>
-            <span>${issue.issue_date || ''}</span>
-          </div>
-          ${issue.summary ? `<div class="summary">${escapeHtml(issue.summary)}</div>` : ''}
+    <div class="entry" onclick="toggleDetail(${issue.id})">
+      <div class="num">${no}</div>
+      <div class="entry-main">
+        <div class="entry-top">
+          <div class="entry-title">${escapeHtml(issue.title)}</div>
+          <div class="status-dot ${statusClass}">${statusClass}</div>
         </div>
+        <div class="entry-meta">
+          <span class="cat-pill">${escapeHtml(issue.category || '')}</span>
+          ${tags}
+          <span>${issue.issue_date || ''}</span>
+        </div>
+        ${issue.summary ? `<div class="entry-summary">${escapeHtml(issue.summary)}</div>` : ''}
         <div class="detail" id="detail-${issue.id}">
           ${renderSection('문제상황', issue.problem)}
           ${renderSection('원인분석', issue.cause)}
@@ -403,11 +375,7 @@ function render() {
 
 function renderSection(label, content) {
   if (!content) return '';
-  return `
-    <div class="section">
-      <h3>${label}</h3>
-      <p>${escapeHtml(content)}</p>
-    </div>`;
+  return `<div class="section"><h3>${label}</h3><p>${escapeHtml(content)}</p></div>`;
 }
 
 function toggleDetail(id) {
@@ -419,6 +387,7 @@ document.getElementById('searchInput').addEventListener('input', (e) => {
   searchTerm = e.target.value;
   render();
 });
+document.getElementById('searchInput').addEventListener('click', (e) => e.stopPropagation());
 
 loadIssues();
 </script>
